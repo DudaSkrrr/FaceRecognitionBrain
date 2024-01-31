@@ -14,7 +14,6 @@ function setupclarifai(imageUrl) {
   const APP_ID = 'test';
   const MODEL_ID = 'face-detection';
   const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';    
-  const IMAGE_URL = 'https://samples.clarifai.com/metro-north.jpg';
   
   const raw = JSON.stringify({
     "user_app_id": {
@@ -25,7 +24,7 @@ function setupclarifai(imageUrl) {
         {
             "data": {
                 "image": {
-                    "url": IMAGE_URL
+                    "url": imageUrl
                 }
             }
         }
@@ -50,25 +49,13 @@ function App() {
   const { requestOptions, MODEL_ID, MODEL_VERSION_ID } = setupclarifai();
   const [box,setBox] = useState({})
 
-  /* const calculateFaceLocation = (data) =>{
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box
-    const image = document.getElementById('inputimage')
-    debugger
-    const width = Number(image.width)
-    const height = Number(image.height)
-    console.log(width,height,clarifaiFace)
-  } */
+
   const calculateFaceLocation = (data) => {
     const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
-    /* return {
-      leftCol: (clarifaiFace.left_col * width).toFixed(3),
-      topRow: (clarifaiFace.top_row * height).toFixed(3),
-      rightCol: (width - (clarifaiFace.right_col * width)).toFixed(3),
-      bottomRow: (height - (clarifaiFace.bottom_row * height)).toFixed(3)
-    } */
+
     const leftCol = (clarifaiFace.left_col * width).toFixed(3)
     const topRow = (clarifaiFace.top_row * height).toFixed(3)
     const rightCol = (width - (clarifaiFace.right_col * width)).toFixed(3)
@@ -82,9 +69,6 @@ function App() {
     })
   }
 
-  /* const displayFaceBox = (box) => {
-    setBox({box: box}); 
-  } */
   
 
   const onInputChange = (e) => {
@@ -108,26 +92,6 @@ function App() {
     })
     .then(result => {
       calculateFaceLocation(result)
-      /* const regions = result.outputs[0].data.regions;
-      
-      regions.forEach(region => {
-        const boundingBox = region.region_info.bounding_box;
-        const topRow = boundingBox.top_row.toFixed(3);
-        const leftCol = boundingBox.left_col.toFixed(3);
-        const bottomRow = boundingBox.bottom_row.toFixed(3);
-        const rightCol = boundingBox.right_col.toFixed(3);
-        setBox({
-          leftCol: leftCol,
-          topRow: topRow,
-          rightCol: rightCol,
-          bottomRow: bottomRow
-        })
-      }); */
-  
-
-
-
-
 
     })
     .catch(error => console.error('Error:', error));
