@@ -70,10 +70,8 @@ function App() {
       email: data.email,
       entries: data.entries,
       joined: data.joined
-    }});
-    console.log(user)
+    }})
   }
-  console.log(user)
   const calculateFaceLocation = (data) => {
     console.log('data', data);
     const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -98,34 +96,36 @@ function App() {
       return;
     }
     setImageUrl(inputValue);
-
+  
     const { requestOptions, MODEL_ID, MODEL_VERSION_ID } = setupClarifai(inputValue);
-
+  
     fetch(`https://api.clarifai.com/v2/models/${MODEL_ID}/versions/${MODEL_VERSION_ID}/outputs`, requestOptions)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(result => {
+        setBox(calculateFaceLocation(result));
+      })
+      .catch(error => console.error('Error:', error));
+  
     fetch('http://localhost:3001/image', {
       method: 'put',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        id:user.id
-      })
-      .then(response => response.json())
-      .then(count =>{
-        setUser({user:{
-          entries: count
-        }})
+        id: user.id
       })
     })
-    return response.json();
-  })
-  .then(result => {
-    console.log('Clarifai API response:', result);
-    setBox(calculateFaceLocation(result));
-  })
-  .catch(error => console.error('Error:', error));
+    .then(response => response.json())
+    .then(count => {
+      setUser(prevUser => ({
+        ...prevUser,
+        entries: count
+      }));
+    })
+    .catch(error => console.error('Error updating user entries:', error));
   }
 
   const onRouteChange = (route) => {
@@ -145,7 +145,7 @@ function App() {
         ? <div>
             <Logo />
             <Rank
-              name={user.name}
+              name={user.name} // Make sure user.name is correctly set
               entries={user.entries}
             />
             <ImageLinkForm
