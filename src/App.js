@@ -3,7 +3,9 @@ import Navigation from './components/Navigation/Navigation.jsx';
 import Logo from './components/Logo/Logo.jsx';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition.jsx';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm.jsx';
+import Register from './components/Register/Register.jsx'
 import Rank from './components/Rank/Rank.jsx';
+import Signin from './components/Signin/Signin.jsx';
 import ParticlesBg from 'particles-bg'
 import { useState } from 'react';
 
@@ -11,6 +13,15 @@ function App() {
   const [inputValue, setInputValue] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [box, setBox] = useState({});
+  const [route,setRoute] = useState('signin')
+  const [isSignedIn,setIsSignedIn] =  useState(false)
+  const [user,setUser] = useState({
+    id:'',
+    name:'',
+    email:'',
+    entries:'',
+    joined:''
+  })
 
   const setupClarifai = (imageUrl) => {
     const PAT = 'ec3d77d6047b49c98c552654b7781c44';
@@ -47,6 +58,22 @@ function App() {
     return { requestOptions, MODEL_ID, MODEL_VERSION_ID };
   }
 
+  /* componentDidMount() ;{
+    fetch('http://localhost:3000')
+      .then(response => response.json())
+      .then(console.log);
+  } */
+  const loadUser = (data) => {
+    setUser({user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries,
+      joined: data.joined
+    }});
+    console.log(user)
+  }
+  console.log(user)
   const calculateFaceLocation = (data) => {
     console.log('data', data);
     const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -79,6 +106,19 @@ function App() {
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
+    fetch('http://localhost:3001/image', {
+      method: 'put',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        id:user.id
+      })
+      .then(response => response.json())
+      .then(count =>{
+        setUser({user:{
+          entries: count
+        }})
+      })
+    })
     return response.json();
   })
   .then(result => {
@@ -87,14 +127,39 @@ function App() {
   })
   .catch(error => console.error('Error:', error));
   }
+
+  const onRouteChange = (route) => {
+    if(route === 'signout'){
+      setIsSignedIn(false)
+    }else if(route === 'home'){
+      setIsSignedIn(true)
+    }
+    setRoute(route);
+  }
+
   return (
     <div className="App">
       <ParticlesBg type="cobweb" bg={true} />
-      <Navigation />
-      <Logo />
-      <Rank />
-      <ImageLinkForm  onInputChange={onInputChange} onButtonSubmit={onButtonSubmit}/>
-      <FaceRecognition box={box} imageUrl={imageUrl}/>
+      <Navigation isSignedIn={isSignedIn} onRouteChange={onRouteChange} />
+      { route === 'home'
+        ? <div>
+            <Logo />
+            <Rank
+              name={user.name}
+              entries={user.entries}
+            />
+            <ImageLinkForm
+              onInputChange={onInputChange}
+              onButtonSubmit={onButtonSubmit}
+            />
+            <FaceRecognition box={box} imageUrl={imageUrl} />
+          </div>
+        : (
+           route === 'signin'
+           ? <Signin loadUser={loadUser} onRouteChange={onRouteChange}/>
+           : <Register loadUser={loadUser} onRouteChange={onRouteChange}/>
+          )
+      }
     </div>
   );
 }
