@@ -22,6 +22,20 @@ function App() {
     entries:'',
     joined:''
   })
+  const initialState = () => {
+    setInputValue('')
+    setImageUrl('')
+    setBox({})
+    setRoute('signin')
+    setIsSignedIn(false)
+    setUser({
+      id:'',
+      name:'',
+      email:'',
+      entries:'',
+      joined:''
+    })
+  }
 
   const setupClarifai = (imageUrl) => {
     const PAT = 'ec3d77d6047b49c98c552654b7781c44';
@@ -58,19 +72,14 @@ function App() {
     return { requestOptions, MODEL_ID, MODEL_VERSION_ID };
   }
 
-  /* componentDidMount() ;{
-    fetch('http://localhost:3000')
-      .then(response => response.json())
-      .then(console.log);
-  } */
   const loadUser = (data) => {
-    setUser({user: {
+    setUser({
       id: data.id,
       name: data.name,
       email: data.email,
       entries: data.entries,
       joined: data.joined
-    }})
+    })
   }
   const calculateFaceLocation = (data) => {
     console.log('data', data);
@@ -129,8 +138,8 @@ function App() {
   }
 
   const onRouteChange = (route) => {
-    if(route === 'signout'){
-      setIsSignedIn(false)
+    if(route === 'signin'){
+      initialState()
     }else if(route === 'home'){
       setIsSignedIn(true)
     }
