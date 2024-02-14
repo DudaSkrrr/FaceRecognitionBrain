@@ -120,7 +120,7 @@ function App() {
       })
       .catch(error => console.error('Error:', error));
   
-    fetch('https://facerecognition-backend-tby7.onrender.com/image', {
+    fetch('https://facerecognition-backend-xzew.onrender.com/image', {
       method: 'put',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
