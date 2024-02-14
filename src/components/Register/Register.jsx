@@ -14,7 +14,7 @@ const Register = ({onRouteChange, loadUser}) => {
     setEmail(e.target.value)
   }
   const onSubmitSignIn = () => {
-    fetch('http://localhost:3001/register', {
+    fetch('https://facerecognition-backend-tby7.onrender.com/register', {
       method: 'POST',
       headers: {'Content-type': 'application/json'}, // Note the corrected header key
       body: JSON.stringify({
